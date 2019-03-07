@@ -1,0 +1,302 @@
+# phobius client 
+
+library(RCurl)
+library(readr)
+library(stringr)
+
+phobius <- function(email= NULL, 
+            stype= NULL, 
+            sequence= NULL,
+            outfile= NULL,
+            outformat= NULL,
+            paramDetail= NULL,
+            format= "grp",
+            ...) {
+  # Get list of parameters
+  args <- c(as.list(environment()),list(...))
+  parameterlist <- c("^sequence$", "^email$", "^stype$", "^outformat$", "^outfile$", "^paramDetail$", 
+                     "^help$", "^resultTypes$", "^params$", "^format$")
+  results <- grepl(paste(parameterlist, collapse = "|"), names(args))
+  results <- grep("FALSE", results)
+  baseURL <- "https://www.ebi.ac.uk/Tools/services/rest/phobius"
+  usage <- "EMBL-EBI PHOBIUS R Client:
+  
+  Protein function analysis with Phobius.
+  
+ [Required (for job submission)]
+  email=               E-mail address.
+  stype=               Defines the type of the sequences to be aligned.
+  sequence=            The input sequence can be entered directly into this form.
+                       The sequence can be in FASTA or UniProtKB/Swiss-Prot format.
+                       A partially formatted sequence is not accepted. Adding a
+                       return to the end of the sequence may help certain
+                       applications understand the input. Note that directly using
+                       data from word processors may yield unpredictable results as
+                       hidden/control characters may be present.
+ [Optional]
+  format=              Output format.
+    
+ [General]
+  help=                Show this help message and exit.
+  resultTypes==         Get available result types for job.
+  outfile=             File name for results (default is JobId; for STDOUT).
+  outformat=           Result format(s) to retrieve. It accepts comma-separated values.
+  params=              List input parameters.
+  paramDetail=         Display details for input parameter.
+  
+  Support/Feedback:
+  https://www.ebi.ac.uk/support/"
+  
+  # help option
+  if("help" %in% names(args)==TRUE){
+    cat(usage)
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  }
+  else
+  # Check arguments given relate to valid input parameters
+  if(!length(results)==0){
+    cat("Error: Unrecognised parameter(s) detected. Please check your inputs")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  } 
+  # Get Result Types
+  if("resultTypes" %in% names(args)==TRUE){
+    URL <-  paste(baseURL, '/run', sep="")
+    
+    
+    JobID <- postForm(URL, email= 'test@ebi.ac.uk', 
+                      sequence= 'sp:pak4_human', 
+                      stype= 'protein'
+                      )
+    
+    statusURL <- paste(baseURL, '/status/', sep="")
+    statusURL <- paste(statusURL, JobID)
+    statusURL <- gsub("\\s+","", statusURL)
+    status <- getForm(statusURL, Accept= 'text/plain')
+    while(grepl("FINISHED", status) == FALSE){
+      statusURL <- paste(baseURL, '/status/', sep="")
+      statusURL <- paste(statusURL, JobID)
+      statusURL <- gsub("\\s+","", statusURL)
+      status <- getForm(statusURL, Accept= 'text/plain')
+    }
+    if(grepl("FINISHED", status) == TRUE){
+      typeURL <- paste(baseURL, '/resulttypes/', sep="")
+      typeURL <- paste(typeURL, JobID)
+      typeURL <- gsub("\\s+", "", typeURL)
+      resultTypes <- getForm(typeURL, Accept= 'text/plain')
+      resultTypes <- str_replace_all(resultTypes, '[<][^>]*[>]', '\n')
+      cat(resultTypes)
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()
+      
+    }
+  }
+  # Get list of parameters  
+  if("params" %in% names(args)==TRUE){
+    parametersURL <- paste(baseURL, '/parameters', sep="")
+    param <- getForm(parametersURL, Accept ='text/plain')
+    param <- str_replace_all(param, '[<][^>]*[>]', '\n')
+    parameters <- "parameters: "
+    cat(parameters, param) 
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  }
+  # Get details on specific parameters
+  if(!missing(paramDetail)){
+    parameter <- paramDetail
+    parametersURL <- paste(baseURL, '/parameters', sep="")
+    param <- getForm(parametersURL, Accept ='text/plain')
+    param <- str_replace_all(param, '[<][^>]*[>]', '\n')
+    
+    if(grepl(parameter, param)== FALSE){
+      stop(paste("parameter",parameter,"not found"))
+    }
+    if(grepl(parameter, param)== TRUE){
+    paramDetURL <- paste(baseURL, '/parameterdetails/', sep="")
+    paramDetURL <- paste(paramDetURL, parameter, sep="")
+    
+    details <- getForm(paramDetURL, Accept = 'text/plain')
+    description <- str_replace_all(details, '[<][^>]*[>]', '\n')
+    
+    cat(description)
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+    }
+  }
+  # If arguments if left blank then print usage
+  if(is.null(stype)==TRUE && is.null(sequence)==TRUE && is.null(email)==TRUE) {
+    
+    cat(usage)
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  }
+  # Check if required inputs have been entered
+  outformats <- c("out", "sequence")
+  if(missing(email)){
+    cat("Error: email must be provided")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  }
+  if(missing(stype)){
+    cat("Error: stype must be provided")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  }
+  if(missing(sequence)){
+    cat("Error: sequence must be provided")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()
+  }
+  if(!missing(outformat)){
+    if(grepl(paste(outformats, collapse = "|"), outformat)== FALSE){
+      cat("Error: outformat must be one of out or sequence")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()
+  }
+  }
+  if(file_test("-f", sequence)== TRUE){
+    sequence= read_file(sequence)
+  }
+  if(!missing(email)){
+    if(grepl("^.*@.*\\..*$", email)==FALSE){
+      cat("Error: Valid email address must be provided")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()
+    }
+  }
+  # Parameter value checker 
+  valueCheck <- function(parameter= NULL, ...){
+    paramDetURL <- paste(baseURL, '/parameterdetails/', sep="")
+    paramDetURL <- paste(paramDetURL, parameter, sep="")
+    
+    paramdetails <- getForm(paramDetURL, Accept = 'text/plain')
+    paramdetails <- str_extract_all(paramdetails, "<value>(-\\w|\\w+)<.value>")
+    paramdetails <- unlist(paramdetails)
+    paramdetails <- str_remove_all(paramdetails, "<..{4,5}>")
+    invisible( list2env(as.list(environment()), parent.frame()) )
+    
+  } 
+  # Check stype input is valid 
+  valueCheck(parameter= "stype")
+  valueComp <- grepl(stype, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for stype. Check valid inputs using paramDetail= stype")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }
+  valueCheck(parameter= "format")
+  valueComp <- grepl(format, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for format. Check valid inputs using paramDetail= format")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }
+  URL <-  paste(baseURL, '/run', sep="")
+  JobID <- postForm(URL, email= email, 
+                    sequence= sequence, 
+                    stype= stype,
+                    format= format)
+  JobStatus <- "JOB SUBMITTED \n"
+  cat(JobStatus)
+  cat("JOBID:",JobID, "\n")
+  # Job Status
+  statusURL <- paste(baseURL, '/status/', sep="")
+  statusURL <- paste(statusURL, JobID)
+  statusURL <- gsub("\\s+","", statusURL)
+  status <- getForm(statusURL, Accept= 'text/plain')
+  while(grepl("FINISHED", status) == FALSE){
+    statusURL <- paste(baseURL, '/status/', sep="")
+    statusURL <- paste(statusURL, JobID)
+    statusURL <- gsub("\\s+","", statusURL)
+    status <- getForm(statusURL, Accept= 'text/plain')
+    JobStatus <- "RUNNING \n"
+    cat(JobStatus)
+  }
+  if(grepl("FINISHED", status) == TRUE){
+    JobStatus <- "FINISHED \n"
+    cat(JobStatus)
+    JobStatus <- "CREATING OUTPUT \n"
+    cat(JobStatus)
+  # outformat for results - if outformat specified  
+    if(!missing(outformat)){
+      resultURL <- paste(baseURL, '/result/', sep="")
+      resultURL <- paste(resultURL, JobID)
+      resultURL <- paste(resultURL, '/', sep="")
+      resultURL <- paste(resultURL, outformat)
+      resultURL <- gsub("\\s+","", resultURL)
+      
+      results <- getForm(resultURL, Accept= 'text/plain')
+      
+      if(missing(outfile)){
+        name <- JobID
+        sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+        cat(results)
+        sink()
+        output <- paste(name,".", outformat,".txt\n", sep="")
+        cat(output)
+      }
+      if(!missing(outfile)){
+        name <- outfile
+        sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+        cat(results)
+        sink()
+        output <- paste(name,".", outformat,".txt\n", sep="")
+        cat(output)
+      }
+    }
+  # outformat for results - if outformat not specified  
+    if(missing(outformat)){
+      outformats <- c("out", "sequence")
+      for(outformat in outformats){
+        resultURL <- paste(baseURL, '/result/', sep="")
+        resultURL <- paste(resultURL, JobID)
+        resultURL <- paste(resultURL, '/', sep="")
+        resultURL <- paste(resultURL, outformat)
+        resultURL <- gsub("\\s+","", resultURL)
+        
+        results <- getForm(resultURL, Accept= 'text/plain')
+        
+        if(missing(outfile)){
+          name <- JobID
+          sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".txt\n", sep="")
+          cat(output)
+        }
+        if(!missing(outfile)){
+          name <- outfile
+          sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".txt\n", sep="")
+          cat(output)
+          
+        }
+      }     
+    }       
+    
+  }
+  JobStatus <- "OUTPUT CREATED \n"
+  cat(JobStatus)
+}
+
+
+
+
