@@ -200,7 +200,7 @@ ncbiblast <- function(email= NULL,
     stop()
   }
   # Check if required inputs have been entered
-  outformats <- c("accs", "ids", "out", "sequence")
+  outformats <- c("accs", "ids", "out", "sequence", "xml", "visual-svg", "complete-visual-svg")
   if(missing(email)){
     cat("Error: email must be provided")
     opt <- options(show.error.messages=FALSE) 
@@ -462,24 +462,38 @@ ncbiblast <- function(email= NULL,
       
       if(missing(outfile)){
         name <- JobID
+      }
+      if(!missing(outfile)){
+        name <- outfile
+
+      }
+      if(grepl("xml", outformat)==TRUE){
+        sink(paste(name,".", outformat,".xml", sep=""), append=FALSE)
+        cat(results)
+        sink()
+        output <- paste(name,".", outformat,".xml\n", sep="")
+        cat(output)
+        
+      }
+      txts <- c("accs", "ids", "out", "sequence")
+      if(grepl(paste(txts, collapse = "|"), outformat)==TRUE){
         sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
         cat(results)
         sink()
         output <- paste(name,".", outformat,".txt\n", sep="")
         cat(output)
       }
-      if(!missing(outfile)){
-        name <- outfile
-        sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+      svgs <- c("visual-svg", "complete-visual-svg")
+      if(grepl(paste(svgs, collapse = "|"), outformat)==TRUE){
+        sink(paste(name,".", outformat,".svg", sep=""), append=FALSE)
         cat(results)
         sink()
-        output <- paste(name,".", outformat,".txt\n", sep="")
+        output <- paste(name,".", outformat,".svg\n", sep="")
         cat(output)
       }
     }
   # outformat for results - if outformat not specified 
     if(missing(outformat)){
-      outformats <- c("accs", "ids", "out", "sequence")
       for(outformat in outformats){
         resultURL <- paste(baseURL, '/result/', sep="")
         resultURL <- paste(resultURL, JobID)
@@ -488,27 +502,41 @@ ncbiblast <- function(email= NULL,
         resultURL <- gsub("\\s+","", resultURL)
         
         results <- getForm(resultURL, Accept= 'text/plain')
-        
         if(missing(outfile)){
           name <- JobID
+        }
+        
+        if(!missing(outfile)){
+          name <- outfile
+        }
+        if(grepl("xml", outformat)==TRUE){
+          sink(paste(name,".", outformat,".xml", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".xml\n", sep="")
+          cat(output)
+          
+        }
+        txts <- c("accs", "ids", "out", "sequence")
+        if(grepl(paste(txts, collapse = "|"), outformat)==TRUE){
           sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
           cat(results)
           sink()
           output <- paste(name,".", outformat,".txt\n", sep="")
           cat(output)
         }
-        if(!missing(outfile)){
-          name <- outfile
-          sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+        svgs <- c("visual-svg", "complete-visual-svg")
+        if(grepl(paste(svgs, collapse = "|"), outformat)==TRUE){
+          sink(paste(name,".", outformat,".svg", sep=""), append=FALSE)
           cat(results)
           sink()
-          output <- paste(name,".", outformat,".txt\n", sep="")
+          output <- paste(name,".", outformat,".svg\n", sep="")
           cat(output)
         }
       }     
     }       
     
-  }
+}
   JobStatus <- "OUTPUT CREATED \n"
   cat(JobStatus)
 }
