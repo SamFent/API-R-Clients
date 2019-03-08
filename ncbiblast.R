@@ -286,6 +286,16 @@ ncbiblast <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  # Check database input is valid 
+  valueCheck(parameter= "database")
+  valueComp <- grepl(database, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for database. Check valid inputs using paramDetail= database")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }
   # Check alignments input is valid - default is 50 
   valueCheck(parameter= "alignments")
   valueComp <- grepl(alignments, paramdetails, ignore.case= TRUE)
@@ -414,6 +424,96 @@ ncbiblast <- function(email= NULL,
       on.exit(options(opt)) 
       stop() 
     }
+  }
+  # Check stype and program combination is valid 
+  protprograms <- c("blastp", "tblastn")
+  dnaprograms <- c("blastx", "blastn", "tblastx")
+  
+  databaseCollect <- function(stype= NULL){
+    parameter <- "database"
+    paramDetURL <- paste(baseURL, '/parameterdetails/', sep="")
+    paramDetURL <- paste(paramDetURL, parameter, sep="")
+    paramdetails <- getForm(paramDetURL, Accept = 'text/plain')
+    if(grepl("protein", stype, ignore.case= TRUE)==TRUE){      
+    paramdetails <- str_extract_all(paramdetails, "<value>uniprotkb<.*>chembl<.value>")
+    paramdetails <- str_extract_all(paramdetails, "<value>(-\\w|\\w+)<.value>")
+    paramdetails <- unlist(paramdetails)
+    paramdetails <- str_remove_all(paramdetails, "<..{4,5}>")
+    paramdetails <- str_remove_all(paramdetails, "protein")
+    invisible( list2env(as.list(environment()), parent.frame()) )
+    }
+    if(grepl("dna", stype, ignore.case= TRUE)==TRUE){
+      paramdetails <- str_extract_all(paramdetails, "<value>em_rel<.*>em_ncr_cum_wgs<.value>")
+      paramdetails <- str_extract_all(paramdetails, "<value>(-\\w|\\w+)<.value>")
+      paramdetails <- unlist(paramdetails)
+      paramdetails <- str_remove_all(paramdetails, "<..{4,5}>")
+      paramdetails <- str_remove_all(paramdetails, ".*nucleotide")
+      invisible( list2env(as.list(environment()), parent.frame()) )
+    }
+  }
+
+
+  if(grepl("protein", stype , ignore.case= TRUE)== TRUE){
+    if(grepl(paste(protprograms, collapse = "|"), program, ignore.case= TRUE)== FALSE){
+      cat("Error: If stype is protein, program must be blastp or tblastn")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop() 
+    }
+    if(grepl("blastp", program, ignore.case= TRUE)== TRUE){
+      databaseCollect(stype= "protein")
+      valueComp <- grepl(database, paramdetails)
+      valueComp <- grep("TRUE", valueComp)
+      if(length(valueComp)==0){
+        cat("Error: If program is blastp, please provide a valid protein database")
+        opt <- options(show.error.messages=FALSE) 
+        on.exit(options(opt)) 
+        stop()  
+      }
+    }
+    if(grepl("tblastn", program, ignore.case= TRUE)==TRUE){
+      databaseCollect(stype= "dna")
+      valueComp <- grepl(database, paramdetails)
+      valueComp <- grep("TRUE", valueComp)
+      if(length(valueComp)==0){
+        cat("Error: If program is tblastn, please provide a valid nucleotide database")
+        opt <- options(show.error.messages=FALSE) 
+        on.exit(options(opt)) 
+        stop()  
+      }
+    }
+  }
+  if(grepl("dna", stype, ignore.case= TRUE)== TRUE){
+    if(grepl(paste(dnaprograms, collapse = "|"), program, ignore.case= TRUE)== FALSE){
+      cat("Error: If stype is DNA, program must be blastx, blastn or tblastx")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop() 
+    }
+    if(grepl("blastx", program, ignore.case= TRUE)== TRUE){
+      databaseCollect(stype= "protein")
+      valueComp <- grepl(database, paramdetails)
+      valueComp <- grep("TRUE", valueComp)
+      if(length(valueComp)==0){
+        cat("Error: If program is blastx, please provide a valid protein database")
+        opt <- options(show.error.messages=FALSE) 
+        on.exit(options(opt)) 
+        stop()  
+      }
+    }
+    newdnaprograms <- c("blastn", "tblastx")
+    if(grepl(paste(newdnaprograms, collapse= "|"), program, ignore.case= TRUE)== TRUE){
+      databaseCollect(stype= "dna")
+      valueComp <- grepl(database, paramdetails)
+      valueComp <- grep("TRUE", valueComp)
+      if(length(valueComp)==0){
+        cat("Error: If program is blastn or tblastx, please provide a valid nucleotide database")
+        opt <- options(show.error.messages=FALSE) 
+        on.exit(options(opt)) 
+        stop()  
+      }
+    }
+    
   }
   URL <-  paste(baseURL, '/run', sep="")
   JobID <- postForm(URL, email= email, 
