@@ -200,7 +200,8 @@ ncbiblast <- function(email= NULL,
     stop()
   }
   # Check if required inputs have been entered
-  outformats <- c("accs", "ids", "out", "sequence", "xml", "visual-svg", "complete-visual-svg")
+  outformats <- c("accs", "ids", "out", "sequence", "xml", "visual-svg", "complete-visual-svg", "ffdp-query-svg",
+                  "ffdp-subject-svg")
   if(missing(email)){
     cat("Error: email must be provided")
     opt <- options(show.error.messages=FALSE) 
@@ -232,11 +233,14 @@ ncbiblast <- function(email= NULL,
     stop()
   }
   if(!missing(outformat)){
-    if(grepl(paste(outformats, collapse = "|"), outformat)== FALSE){
-      cat("Error: outformat must be one of accs, ids, out or sequence")
+    for(format in outformat){
+    if(grepl(paste(outformats, collapse = "|"), format)== FALSE){
+      cat("Error: outformat invalid. Valid outformats are accs, ids, out, sequence, xml, visual-svg, 
+          complete-visual-svg, ffdp-query-svg and ffdp-subject-svg")
       opt <- options(show.error.messages=FALSE) 
       on.exit(options(opt)) 
       stop()
+      }
     }
   }
   if(file_test("-f", sequence)== TRUE){
@@ -452,10 +456,11 @@ ncbiblast <- function(email= NULL,
     cat(JobStatus)
   # outformat for results - if outformat specified  
     if(!missing(outformat)){
+      for(format in outformat){
       resultURL <- paste(baseURL, '/result/', sep="")
       resultURL <- paste(resultURL, JobID)
       resultURL <- paste(resultURL, '/', sep="")
-      resultURL <- paste(resultURL, outformat)
+      resultURL <- paste(resultURL, format)
       resultURL <- gsub("\\s+","", resultURL)
       
       results <- getForm(resultURL, Accept= 'text/plain')
@@ -467,29 +472,30 @@ ncbiblast <- function(email= NULL,
         name <- outfile
 
       }
-      if(grepl("xml", outformat)==TRUE){
-        sink(paste(name,".", outformat,".xml", sep=""), append=FALSE)
+      if(grepl("xml", format)==TRUE){
+        sink(paste(name,".", format,".xml", sep=""), append=FALSE)
         cat(results)
         sink()
-        output <- paste(name,".", outformat,".xml\n", sep="")
+        output <- paste(name,".", format,".xml\n", sep="")
         cat(output)
         
       }
       txts <- c("accs", "ids", "out", "sequence")
-      if(grepl(paste(txts, collapse = "|"), outformat)==TRUE){
-        sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+      if(grepl(paste(txts, collapse = "|"), format)==TRUE){
+        sink(paste(name,".", format,".txt", sep=""), append=FALSE)
         cat(results)
         sink()
-        output <- paste(name,".", outformat,".txt\n", sep="")
+        output <- paste(name,".", format,".txt\n", sep="")
         cat(output)
       }
-      svgs <- c("visual-svg", "complete-visual-svg")
-      if(grepl(paste(svgs, collapse = "|"), outformat)==TRUE){
-        sink(paste(name,".", outformat,".svg", sep=""), append=FALSE)
+      svgs <- c("visual-svg", "complete-visual-svg", "ffdp-query-svg", "ffdp-subject-svg")
+      if(grepl(paste(svgs, collapse = "|"), format)==TRUE){
+        sink(paste(name,".", format,".svg", sep=""), append=FALSE)
         cat(results)
         sink()
-        output <- paste(name,".", outformat,".svg\n", sep="")
+        output <- paste(name,".", format,".svg\n", sep="")
         cat(output)
+      }
       }
     }
   # outformat for results - if outformat not specified 
@@ -525,7 +531,7 @@ ncbiblast <- function(email= NULL,
           output <- paste(name,".", outformat,".txt\n", sep="")
           cat(output)
         }
-        svgs <- c("visual-svg", "complete-visual-svg")
+        svgs <- c("visual-svg", "complete-visual-svg","ffdp-query-svg", "ffdp-subject-svg")
         if(grepl(paste(svgs, collapse = "|"), outformat)==TRUE){
           sink(paste(name,".", outformat,".svg", sep=""), append=FALSE)
           cat(results)
