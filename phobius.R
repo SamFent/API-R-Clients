@@ -158,11 +158,13 @@ phobius <- function(email= NULL,
     stop()
   }
   if(!missing(outformat)){
-    if(grepl(paste(outformats, collapse = "|"), outformat)== FALSE){
-      cat("Error: outformat must be one of out or sequence")
+    for(format in outformat){
+    if(grepl(paste(outformats, collapse = "|"), format)== FALSE){
+      cat("Error: outformat invalid. Valid outformats are out and sequence")
       opt <- options(show.error.messages=FALSE) 
       on.exit(options(opt)) 
       stop()
+    }
   }
   }
   if(file_test("-f", sequence)== TRUE){
@@ -235,29 +237,31 @@ phobius <- function(email= NULL,
     cat(JobStatus)
   # outformat for results - if outformat specified  
     if(!missing(outformat)){
+      for(format in outformat){
       resultURL <- paste(baseURL, '/result/', sep="")
       resultURL <- paste(resultURL, JobID)
       resultURL <- paste(resultURL, '/', sep="")
-      resultURL <- paste(resultURL, outformat)
+      resultURL <- paste(resultURL, format)
       resultURL <- gsub("\\s+","", resultURL)
       
       results <- getForm(resultURL, Accept= 'text/plain')
       
       if(missing(outfile)){
         name <- JobID
-        sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+        sink(paste(name,".", format,".txt", sep=""), append=FALSE)
         cat(results)
         sink()
-        output <- paste(name,".", outformat,".txt\n", sep="")
+        output <- paste(name,".", format,".txt\n", sep="")
         cat(output)
       }
       if(!missing(outfile)){
         name <- outfile
-        sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
+        sink(paste(name,".", format,".txt", sep=""), append=FALSE)
         cat(results)
         sink()
-        output <- paste(name,".", outformat,".txt\n", sep="")
+        output <- paste(name,".", format,".txt\n", sep="")
         cat(output)
+      }
       }
     }
   # outformat for results - if outformat not specified  
