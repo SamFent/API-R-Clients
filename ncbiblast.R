@@ -306,6 +306,7 @@ ncbiblast <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  
   # Check matrix input is valid - default is BLOSUM62
   valueCheck(parameter= "matrix")
   valueComp <- grepl(matrix, paramdetails, ignore.case= TRUE)
@@ -416,6 +417,7 @@ ncbiblast <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+
   # Check seqrange input is valid - default is START-END
   if(!seqrange== "START-END"){
     if(grepl("^[0-9]+.[0-9]+", seqrange)== FALSE){
@@ -429,12 +431,12 @@ ncbiblast <- function(email= NULL,
   protprograms <- c("blastp", "tblastn")
   dnaprograms <- c("blastx", "blastn", "tblastx")
   
-  databaseCollect <- function(stype= NULL){
+  databaseCollect <- function(sequencetype= NULL){
     parameter <- "database"
     paramDetURL <- paste(baseURL, '/parameterdetails/', sep="")
     paramDetURL <- paste(paramDetURL, parameter, sep="")
     paramdetails <- getForm(paramDetURL, Accept = 'text/plain')
-    if(grepl("protein", stype, ignore.case= TRUE)==TRUE){      
+    if(grepl("protein", sequencetype, ignore.case= TRUE)==TRUE){      
     paramdetails <- str_extract_all(paramdetails, "<value>uniprotkb<.*>chembl<.value>")
     paramdetails <- str_extract_all(paramdetails, "<value>(-\\w|\\w+)<.value>")
     paramdetails <- unlist(paramdetails)
@@ -442,7 +444,7 @@ ncbiblast <- function(email= NULL,
     paramdetails <- str_remove_all(paramdetails, "protein")
     invisible( list2env(as.list(environment()), parent.frame()) )
     }
-    if(grepl("dna", stype, ignore.case= TRUE)==TRUE){
+    if(grepl("dna", sequencetype, ignore.case= TRUE)==TRUE){
       paramdetails <- str_extract_all(paramdetails, "<value>em_rel<.*>em_ncr_cum_wgs<.value>")
       paramdetails <- str_extract_all(paramdetails, "<value>(-\\w|\\w+)<.value>")
       paramdetails <- unlist(paramdetails)
@@ -461,7 +463,7 @@ ncbiblast <- function(email= NULL,
       stop() 
     }
     if(grepl("blastp", program, ignore.case= TRUE)== TRUE){
-      databaseCollect(stype= "protein")
+      databaseCollect(sequencetype= "protein")
       valueComp <- grepl(database, paramdetails)
       valueComp <- grep("TRUE", valueComp)
       if(length(valueComp)==0){
@@ -472,7 +474,7 @@ ncbiblast <- function(email= NULL,
       }
     }
     if(grepl("tblastn", program, ignore.case= TRUE)==TRUE){
-      databaseCollect(stype= "dna")
+      databaseCollect(sequencetype= "dna")
       valueComp <- grepl(database, paramdetails)
       valueComp <- grep("TRUE", valueComp)
       if(length(valueComp)==0){
@@ -491,7 +493,7 @@ ncbiblast <- function(email= NULL,
       stop() 
     }
     if(grepl("blastx", program, ignore.case= TRUE)== TRUE){
-      databaseCollect(stype= "protein")
+      databaseCollect(sequencetype= "protein")
       valueComp <- grepl(database, paramdetails)
       valueComp <- grep("TRUE", valueComp)
       if(length(valueComp)==0){
@@ -503,7 +505,7 @@ ncbiblast <- function(email= NULL,
     }
     newdnaprograms <- c("blastn", "tblastx")
     if(grepl(paste(newdnaprograms, collapse= "|"), program, ignore.case= TRUE)== TRUE){
-      databaseCollect(stype= "dna")
+      databaseCollect(sequencetype= "dna")
       valueComp <- grepl(database, paramdetails)
       valueComp <- grep("TRUE", valueComp)
       if(length(valueComp)==0){
@@ -528,6 +530,7 @@ ncbiblast <- function(email= NULL,
                     dropoff= dropoff,
                     gapopen= gapopen,
                     gapext= gapext,
+                    filter= filter,
                     seqrange= seqrange,
                     gapalign= gapalign,
                     compstats= compstats,
