@@ -15,18 +15,18 @@ ncbiblast <- function(email= NULL,
                       outfile = NULL,
                       paramDetail= NULL,
                       alignments= 50,
-                      matrix= "BLOSUM62",
+                      matrix= NULL,
                       scores= 50,
                       exp= "10",
-                      dropoff= 0,
-                      gapopen= -1,
-                      gapext= -1,
-                      filter= "F",
+                      dropoff= NULL,
+                      gapopen= NULL,
+                      gapext= NULL,
+                      filter= NULL,
                       seqrange= "START-END",
-                      gapalign= "TRUE",
-                      compstats= "F",
-                      align= 0,
-                      transltable= 1,
+                      gapalign= NULL,
+                      compstats= NULL,
+                      align= NULL,
+                      transltable= NULL,
                       task= NULL,
                       match_scores= NULL,
                       ...){
@@ -312,17 +312,6 @@ ncbiblast <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
-  
-  # Check matrix input is valid - default is BLOSUM62
-  valueCheck(parameter= "matrix")
-  valueComp <- grepl(matrix, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for matrix. Check valid inputs using paramDetail= matrix")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
-  }
   # Check scores input is valid - default is 50
   valueCheck(parameter= "scores")
   valueComp <- grepl(scores, paramdetails, ignore.case= TRUE)
@@ -341,87 +330,115 @@ ncbiblast <- function(email= NULL,
     cat("Error: Invalid input for expectation value. Check valid inputs using paramDetail= exp")
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
-    stop()  
+    stop()
+  }
+  # Check matrix input is valid - default is BLOSUM62
+  if(!missing(matrix)){
+    valueCheck(parameter= "matrix")
+    valueComp <- grepl(matrix, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for matrix. Check valid inputs using paramDetail= matrix")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check dropoff input is valid - default is 0
-  valueCheck(parameter= "dropoff")
-  valueComp <- grepl(dropoff, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for dropoff. Check valid inputs using paramDetail= dropoff")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(dropoff)){
+    valueCheck(parameter= "dropoff")
+    valueComp <- grepl(dropoff, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for dropoff. Check valid inputs using paramDetail= dropoff")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check gapopen input is valid - default is -1
-  valueCheck(parameter= "gapopen")
-  valueComp <- grepl(gapopen, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for gap open. Check valid inputs using paramDetail= gapopen")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(gapopen)){
+    valueCheck(parameter= "gapopen")
+    valueComp <- grepl(gapopen, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for gap open. Check valid inputs using paramDetail= gapopen")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop() 
+    }
   }
   # Check gapext input is valid - default is -1
-  valueCheck(parameter= "gapext")
-  valueComp <- grepl(gapext, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for gap extend. Check valid inputs using paramDetail= gapext")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(gapext)){
+    valueCheck(parameter= "gapext")
+    valueComp <- grepl(gapext, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for gap extend. Check valid inputs using paramDetail= gapext")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop() 
+    }
   }
   # Check filter input is valid - default is F
-  valueCheck(parameter= "filter")
-  valueComp <- grepl(filter, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for filter. Check valid inputs using paramDetail= filter")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(filter)){
+    valueCheck(parameter= "filter")
+    valueComp <- grepl(filter, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for filter. Check valid inputs using paramDetail= filter")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check gapalign input is valid - default is true 
-  valueCheck(parameter= "gapalign")
-  valueComp <- grepl(gapalign, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for gapalign. Check valid inputs using paramDetail= gapalign")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(gapalign)){
+    valueCheck(parameter= "gapalign")
+    valueComp <- grepl(gapalign, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for gapalign. Check valid inputs using paramDetail= gapalign")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check compstats input is valid - default if F
-  valueCheck(parameter= "compstats")
-  valueComp <- grepl(compstats, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for composition-based statistics. Check valid inputs using paramDetail= compstats")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(compstats)){
+    valueCheck(parameter= "compstats")
+    valueComp <- grepl(compstats, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for composition-based statistics. Check valid inputs using paramDetail= compstats")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check align input is valid - default is 0
-  valueCheck(parameter= "align")
-  valueComp <- grepl(align, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for align. Check valid inputs using paramDetail= align")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(align)){
+    valueCheck(parameter= "align")
+    valueComp <- grepl(align, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for align. Check valid inputs using paramDetail= align")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check transltable input is valid - default is 1
-  valueCheck(parameter= "transltable")
-  valueComp <- grepl(transltable, paramdetails, ignore.case= TRUE)
-  valueComp <- grep("TRUE", valueComp)
-  if(length(valueComp)==0){
-    cat("Error: Invalid input for translation table. Check valid inputs using paramDetail= transltable")
-    opt <- options(show.error.messages=FALSE) 
-    on.exit(options(opt)) 
-    stop()  
+  if(!missing(transltable)){
+    valueCheck(parameter= "transltable")
+    valueComp <- grepl(transltable, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for translation table. Check valid inputs using paramDetail= transltable")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
   # Check match_scores value if provided
   if(!missing(match_scores)){
