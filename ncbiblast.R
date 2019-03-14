@@ -27,13 +27,15 @@ ncbiblast <- function(email= NULL,
                       compstats= "F",
                       align= 0,
                       transltable= 1,
+                      task= NULL,
+                      match_scores= NULL,
                       ...){
   # Get list of arguments provided 
   args <- c(as.list(environment()),list(...))
   parameterlist <- c("^sequence$", "^params$", "^stype$", "^email$", "^program$", "^database$", "^outformat$", 
                      "^outfile$", "^paramDetail$", "^help$", "^resultTypes$", "^alignments$", "^matrix$", "^scores$",
                      "^exp$", "^dropoff$", "^gapopen$", "^gapext$", "^filter$", "^seqrange$", "^gapalign$",
-                     "^compstats$", "^align$", "^transltable$")
+                     "^compstats$", "^align$", "^transltable$", "^task$", "^match_scores$")
   paramComp <- grepl(paste(parameterlist, collapse = "|"), names(args))
   paramComp <- grep("FALSE", paramComp)
   # Base URL
@@ -59,6 +61,7 @@ ncbiblast <- function(email= NULL,
   database=             Database.
   
  [Optional]
+  task=                 Task option (only selectable for blastn).
   matrix=               (Protein searches) The substitution matrix used for scoring
                         alignments when searching the database.
   alignments=           Maximum number of match alignments reported in the result
@@ -70,6 +73,9 @@ ncbiblast <- function(email= NULL,
                         the match is expected to occur by chance.
   dropoff=              The amount a score can drop before gapped extension of word
                         hits is halted.
+  match_scores=         (Nucleotide searches) The match score is the bonus to the
+                        alignment score when matching the same base. The mismatch is
+                        the penalty when failing to match.
   gapopen=              Penalty taken away from the score when a gap is created in
                         sequence. Increasing the gap openning penalty will decrease
                         the number of gaps in the final alignment.
@@ -412,10 +418,34 @@ ncbiblast <- function(email= NULL,
   valueComp <- grepl(transltable, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
   if(length(valueComp)==0){
-    cat("Error: Invalid input for composition-based statistics. Check valid inputs using paramDetail= compstats")
+    cat("Error: Invalid input for translation table. Check valid inputs using paramDetail= transltable")
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+  }
+  # Check match_scores value if provided
+  if(!missing(match_scores)){
+    valueCheck(parameter= "match_scores")
+    valueComp <- grepl(match_scores, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for match scores. Check valid inputs using paramDetail= match_scores")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
+  }
+  # Check task value if provided
+  if(!missing(task)){
+    valueCheck(parameter= "task")
+    valueComp <- grepl(taak, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for task. Check valid inputs using paramDetail= task")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }
   }
 
   # Check seqrange input is valid - default is START-END
@@ -535,7 +565,9 @@ ncbiblast <- function(email= NULL,
                     gapalign= gapalign,
                     compstats= compstats,
                     align= align,
-                    transltable= transltable)
+                    transltable= transltable,
+                    task= task,
+                    match_score= match_scores)
   JobStatus <- "JOB SUBMITTED \n"
   cat(JobStatus)
   cat("JOBID:",JobID, "\n")
