@@ -9,3 +9,5 @@ install.packages("RCurl")
 install.packages("readr")
 
 install.packages("stringr")
+
+## Connet this repository to R
