@@ -1,8 +1,8 @@
 
 # API-R-Clients
-R-based API clients developed to allow access to bioinformatics tools avilable at the EBI
+R-based API clients developed to allow access to bioinformatics tools available at the EBI
 
-Prototypes currently exist for ncbiblast and phobius tools 
+Prototypes currently exist for NCBI Blast and Phobius tools 
 ## Required Libraries to Run Clients
 Ensure you have run the following commands before in the project before using any of the clients
 
