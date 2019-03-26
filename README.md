@@ -16,6 +16,7 @@ This repository can be linked to your R/RStudio:
 
 - To link you need to donwload Git(https://gist.github.com/derhuerst/1b15ff4652a867391f03#file-linux-md)
 - Git for Windows can also be downloaded from here (https://gitforwindows.org/)
-- Once Git is downloaded, go into RStudio and click File > New Project > Version Control > Git. You may need to restart RStudio for the Git download to be recognised
+- Once Git is downloaded, go into RStudio and click File > New Project > Version Control > Git. 
 - In the repository URL, copy the URL for this respoistory and chose where the files should be saved
 
+You may need to restart RStudio for the Git download to be recognised
