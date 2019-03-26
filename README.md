@@ -19,5 +19,6 @@ This repository can be linked to your R/RStudio:
 - Once Git is downloaded, go into RStudio and click File > New Project > Version Control > Git 
 - Then in the repository URL, copy the URL for this repoistory and then choose where the files should be saved
 
-You should now have an up to date version of this repository. Repository can be updated using the Pull option in the Git tab in the upper right hand box of RStudio 
+You should now have an up to date version of this repository. Repository can be updated using the Pull option in the Git tab in the upper right hand box of RStudio.
+
 You may need to restart RStudio for the Git download to be recognised
