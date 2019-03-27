@@ -1,5 +1,6 @@
-# ncbiblast client
+# NCBI Blast Client
 
+# Load Required Libaries 
 library(RCurl)
 library(readr)
 library(stringr)
@@ -249,9 +250,11 @@ ncbiblast <- function(email= NULL,
       }
     }
   }
+  # if sequence input is a file then load file
   if(file_test("-f", sequence)== TRUE){
     sequence= read_file(sequence)
   }
+  # Check email input relates to a valid email
   if(!missing(email)){
     if(grepl("^.*@.*\\..*$", email)==FALSE){
       cat("Error: Valid email address must be provided")

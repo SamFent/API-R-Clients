@@ -1,5 +1,6 @@
-# phobius client 
+# Phobius Client 
 
+# Load Required Libraries 
 library(RCurl)
 library(readr)
 library(stringr)
@@ -38,7 +39,7 @@ phobius <- function(email= NULL,
     
  [General]
   help=                Show this help message and exit.
-  resultTypes==         Get available result types for job.
+  resultTypes=         Get available result types for job.
   outfile=             File name for results (default is JobId; for STDOUT).
   outformat=           Result format(s) to retrieve. It accepts comma-separated values.
   params=              List input parameters.
@@ -159,17 +160,19 @@ phobius <- function(email= NULL,
   }
   if(!missing(outformat)){
     for(format in outformat){
-    if(grepl(paste(outformats, collapse = "|"), format)== FALSE){
+      if(grepl(paste(outformats, collapse = "|"), format)== FALSE){
       cat("Error: outformat invalid. Valid outformats are out and sequence")
       opt <- options(show.error.messages=FALSE) 
       on.exit(options(opt)) 
       stop()
+      }
     }
   }
-  }
+  # if sequence input is a file then load file
   if(file_test("-f", sequence)== TRUE){
     sequence= read_file(sequence)
   }
+  # Check email input relates to a valid email
   if(!missing(email)){
     if(grepl("^.*@.*\\..*$", email)==FALSE){
       cat("Error: Valid email address must be provided")
@@ -200,6 +203,7 @@ phobius <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  # Check format input is valid
   valueCheck(parameter= "format")
   valueComp <- grepl(format, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -295,7 +299,6 @@ phobius <- function(email= NULL,
         }
       }     
     }       
-    
   }
   JobStatus <- "OUTPUT CREATED \n"
   cat(JobStatus)
