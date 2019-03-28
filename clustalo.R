@@ -10,12 +10,24 @@ clustalo <- function(email= NULL,
                      outfile= NULL,
                      outformat= NULL,
                      paramDetail= NULL,
+                     guidetreeout= 'true',
+                     dismatout= 'true',
+                     dealign= 'true',
+                     mbed= 'true',
+                     mbediteration= 'true',
+                     iterations= 0,
+                     gtiterations= -1,
+                     hmmiterations= -1,
+                     outfmt= 'clustal_num',
+                     order= 'aligned',
                      ...) {
   
   # Get list of parameters
   args <- c(as.list(environment()),list(...))
   parameterlist <- c("^sequence$", "^email$", "^stype$", "^outfile$", "^outformat$", "^paramDetail$", "^help$", 
-                     "^resultTypes$", "^params$")
+                     "^resultTypes$", "^params$", "^guidetreeout$", "^dismatout$", "^dealign$", "^mbed$",
+                     "^mbediteration$", "^iterations$", "^gtiterations$", "^hmmiterations$", "^outfmt$",
+                     "^order$")
   results <- grepl(paste(parameterlist, collapse = "|"), names(args))
   results <- grep("FALSE", results)
   baseURL <- "https://www.ebi.ac.uk/Tools/services/rest/clustalo"  
@@ -36,6 +48,26 @@ clustalo <- function(email= NULL,
                        processors may yield unpredictable results as hidden/control
                        characters may be present. There is currently a sequence
                        input limit of 4000 sequences and 4MB of data.
+ [Optional]
+  guidetreeout=        Output guide tree.
+  dismatout=           Output distance matrix. This is only calculated if the mBed-
+                       like clustering guide tree is set to false.
+  dealign=             Remove any existing alignment (gaps) from input sequences.
+  mbed=                This option uses a sample of the input sequences and then
+                       represents all sequences as vectors to these sequences,
+                       enabling much more rapid generation of the guide tree,
+                       especially when the number of sequences is large.
+  mbediteration=       Use mBed-like clustering during subsequent iterations.
+  iterations=          Number of (combined guide-tree/HMM) iterations.
+  gtiterations=        Having set the number of combined iterations, this parameter
+                       can be changed to limit the number of guide tree iterations
+                       within the combined iterations.
+  hmmiterations=       Having set the number of combined iterations, this parameter
+                       can be changed to limit the number of HMM iterations within
+                       the combined iterations.
+  outfmt=              Format for generated multiple sequence alignment.
+  order=               The order in which the sequences appear in the final
+                       alignment.
 
  [General]
   help=                Show this help message and exit.
@@ -66,11 +98,9 @@ clustalo <- function(email= NULL,
   # Get Result Types
   if("resultTypes" %in% names(args)==TRUE){
     URL <-  paste(baseURL, '/run', sep="")
-    testsequence <- './sequence/prot_sequences.fasta'
-    testsequence= read_file(testsequence)
     
     JobID <- postForm(URL, email= 'test@ebi.ac.uk',
-                      sequence= testsequence,
+                      sequence= 'sp:pak4_human,sp:pak2_human,sp:pak5_human',
                       stype= 'protein')
     
     statusURL <- paste(baseURL, '/status/', sep="")
@@ -139,7 +169,7 @@ clustalo <- function(email= NULL,
     stop()
   }
   # Check if required inputs have been entered
-  outformats <- c("out", "sequence")  
+  outformats <- c("out", "sequence", "aln-clustal_num", "tree", "phylotree", "pim")  
   if(missing(email)){
     cat("Error: email must be provided")
     opt <- options(show.error.messages=FALSE) 
@@ -203,10 +233,120 @@ clustalo <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }  
+  # Check guidetreeout input is valid - default is true 
+  valueCheck(parameter= "guidetreeout")
+  valueComp <- grepl(guidetreeout, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for output guide tree. Check valid inputs using paramDetail= guidetreeout")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }  
+  # Check dismatout input is valid - default is true 
+  valueCheck(parameter= "dismatout")
+  valueComp <- grepl(dismatout, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for output distance matrix. Check valid inputs using paramDetail= dismatout")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }
+  # Check dealign input is valid - default is true 
+  valueCheck(parameter= "dealign")
+  valueComp <- grepl(dealign, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for dealign. Check valid inputs using paramDetail= dealign")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }  
+  # Check mbed input is valid - default is true 
+  valueCheck(parameter= "mbed")
+  valueComp <- grepl(mbed, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for mbed. Check valid inputs using paramDetail= mbed")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }   
+  # Check mbediteration input is valid - default is true 
+  valueCheck(parameter= "mbediteration")
+  valueComp <- grepl(mbediteration, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for mbediteration. Check valid inputs using paramDetail= mbediteration")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  } 
+  # Check iterations input is valid - default is 0
+  valueCheck(parameter= "iterations")
+  valueComp <- grepl(iterations, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for iterations. Check valid inputs using paramDetail= iterations")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  } 
+  # Check gtiterations input is valid - default is -1
+  valueCheck(parameter= "gtiterations")
+  valueComp <- grepl(gtiterations, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for guide tree iterations. Check valid inputs using paramDetail= gtiterations")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  } 
+  # Check hmmiterations input is valid - default is -1
+  valueCheck(parameter= "hmmiterations")
+  valueComp <- grepl(hmmiterations, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for HMM iterations. Check valid inputs using paramDetail= hmmiterations")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }   
+  # Check outfmt input is valid - default is clustal_num
+  valueCheck(parameter= "outfmt")
+  valueComp <- grepl(outfmt, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for output alignment format. Check valid inputs using paramDetail= outfmt")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }
+  # Check order input is valid - default is aligned
+  valueCheck(parameter= "order")
+  valueComp <- grepl(order, paramdetails, ignore.case= TRUE)
+  valueComp <- grep("TRUE", valueComp)
+  if(length(valueComp)==0){
+    cat("Error: Invalid input for order. Check valid inputs using paramDetail= order")
+    opt <- options(show.error.messages=FALSE) 
+    on.exit(options(opt)) 
+    stop()  
+  }
   URL <-  paste(baseURL, '/run', sep="")
   JobID <- postForm(URL, email= email, 
                     sequence= sequence, 
-                    stype= stype)
+                    stype= stype,
+                    guidetreeout= guidetreeout,
+                    dismatout= dismatout,
+                    dealign= dealign,
+                    mbed= mbed,
+                    mbediteration= mbediteration,
+                    iterations= iterations,
+                    gtiterations= gtiterations,
+                    hmmiterations= hmmiterations,
+                    outfmt= outfmt,
+                    order= order)
   JobStatus <- "JOB SUBMITTED \n"
   cat(JobStatus)
   cat("JOBID:",JobID, "\n")
@@ -241,25 +381,51 @@ clustalo <- function(email= NULL,
         
         if(missing(outfile)){
           name <- JobID
-          sink(paste(name,".", format,".txt", sep=""), append=FALSE)
-          cat(results)
-          sink()
-          output <- paste(name,".", format,".txt\n", sep="")
-          cat(output)
         }
+        
         if(!missing(outfile)){
           name <- outfile
+        }
+        txts <- c("out", "sequence")
+        if(grepl(paste(txts, collapse = "|"), format)==TRUE){
           sink(paste(name,".", format,".txt", sep=""), append=FALSE)
           cat(results)
           sink()
           output <- paste(name,".", format,".txt\n", sep="")
           cat(output)
         }
+        if(grepl("aln-clustal_num", format)==TRUE){
+          sink(paste(name,".", format,".clustal_num", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", format,".clustal_num\n", sep="")
+          cat(output)
+        }
+        if(grepl("^tree$", format)==TRUE){
+          sink(paste(name,".", format,".dnd", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", format,".dnd\n", sep="")
+          cat(output)
+        }
+        if(grepl("phylotree", format)==TRUE){
+          sink(paste(name,".", format,".ph", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", format,".ph\n", sep="")
+          cat(output)
+        }    
+        if(grepl("pim", format)==TRUE){
+          sink(paste(name,".", format,".pim", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", format,".pim\n", sep="")
+          cat(output)
+        } 
       }
     }
     # outformat for results - if outformat not specified  
     if(missing(outformat)){
-      outformats <- c("out", "sequence")
       for(outformat in outformats){
         resultURL <- paste(baseURL, '/result/', sep="")
         resultURL <- paste(resultURL, JobID)
@@ -271,21 +437,49 @@ clustalo <- function(email= NULL,
         
         if(missing(outfile)){
           name <- JobID
-          sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
-          cat(results)
-          sink()
-          output <- paste(name,".", outformat,".txt\n", sep="")
-          cat(output)
         }
+        
         if(!missing(outfile)){
           name <- outfile
+        }
+        txts <- c("out", "sequence")
+        if(grepl(paste(txts, collapse = "|"), outformat)==TRUE){
           sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
           cat(results)
           sink()
           output <- paste(name,".", outformat,".txt\n", sep="")
           cat(output)
-          
         }
+        if(grepl("aln-clustal_num", outformat)==TRUE){
+          sink(paste(name,".", outformat,".clustal_num", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".clustal_num\n", sep="")
+          cat(output)
+        }
+        if(grepl("^tree$", outformat)==TRUE){
+          sink(paste(name,".", outformat,".dnd", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".dnd\n", sep="")
+          cat(output)
+        }
+        if(grepl("phylotree", outformat)==TRUE){
+          sink(paste(name,".", outformat,".ph", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".ph\n", sep="")
+          cat(output)
+        }    
+        if(grepl("pim", outformat)==TRUE){
+          sink(paste(name,".", outformat,".pim", sep=""), append=FALSE)
+          cat(results)
+          sink()
+          output <- paste(name,".", outformat,".pim\n", sep="")
+          cat(output)
+        } 
+
+
       }     
     }       
   }
