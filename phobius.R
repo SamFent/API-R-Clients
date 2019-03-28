@@ -252,25 +252,21 @@ phobius <- function(email= NULL,
       
       if(missing(outfile)){
         name <- JobID
-        sink(paste(name,".", format,".txt", sep=""), append=FALSE)
-        cat(results)
-        sink()
-        output <- paste(name,".", format,".txt\n", sep="")
-        cat(output)
       }
+      
       if(!missing(outfile)){
         name <- outfile
+      }
         sink(paste(name,".", format,".txt", sep=""), append=FALSE)
         cat(results)
         sink()
         output <- paste(name,".", format,".txt\n", sep="")
         cat(output)
       }
-      }
+
     }
   # outformat for results - if outformat not specified  
     if(missing(outformat)){
-      outformats <- c("out", "sequence")
       for(outformat in outformats){
         resultURL <- paste(baseURL, '/result/', sep="")
         resultURL <- paste(resultURL, JobID)
@@ -282,24 +278,21 @@ phobius <- function(email= NULL,
         
         if(missing(outfile)){
           name <- JobID
-          sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
-          cat(results)
-          sink()
-          output <- paste(name,".", outformat,".txt\n", sep="")
-          cat(output)
         }
+        
         if(!missing(outfile)){
           name <- outfile
+        }
           sink(paste(name,".", outformat,".txt", sep=""), append=FALSE)
           cat(results)
           sink()
           output <- paste(name,".", outformat,".txt\n", sep="")
           cat(output)
-          
         }
-      }     
+        
+      }    
     }       
-  }
+  
   JobStatus <- "OUTPUT CREATED \n"
   cat(JobStatus)
 }
