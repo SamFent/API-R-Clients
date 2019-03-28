@@ -20,7 +20,7 @@ phobius(email= 'test@ebi.ac.uk',
 source("clustalo.R")
 
 clustalo(email= 'test@ebi.ac.uk',
-         sequence= './sequence/prot_sequences.fasta',
+         sequence= 'sp:pak4_human,sp:pak2_human,sp:pak5_human',
          stype= 'protein')
 
 # Order that parameters are put in doesn't matter if the parameter being given a value is specified 
