@@ -2,7 +2,7 @@
 # API-R-Clients
 R-based API clients developed to allow access to bioinformatics tools available at the EBI
 
-Prototypes currently exist for NCBI Blast and Phobius tools 
+Prototypes currently exist for NCBI Blast, Clustal Omega, Phobius and Simple Phylogeny tools 
 ## Required Libraries to Run Clients
 Ensure you have run the following commands before in the project before using any of the clients
 
