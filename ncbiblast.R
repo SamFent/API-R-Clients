@@ -1,4 +1,4 @@
-# NCBI Blast Client
+# NCBI Blast R Client
 
 # Load Required Libaries 
 library(RCurl)
@@ -567,6 +567,7 @@ ncbiblast <- function(email= NULL,
     }
     
   }
+  # Submit Job 
   URL <-  paste(baseURL, '/run', sep="")
   JobID <- postForm(URL, email= email, 
                     sequence= sequence, 

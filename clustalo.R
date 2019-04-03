@@ -1,5 +1,6 @@
-# Clustal Omega Client 
+# Clustal Omega R Client 
 
+# Load Required Libaries 
 library(RCurl)
 library(readr)
 library(stringr)
@@ -191,7 +192,7 @@ clustalo <- function(email= NULL,
   if(!missing(outformat)){
     for(format in outformat){
       if(grepl(paste(outformats, collapse = "|"), format)== FALSE){
-        cat("Error: outformat invalid. Valid outformats are out and sequence")
+        cat("Error: outformat invalid. Valid outformats are out, sequence, aln-clustal_num, tree, phylotree and pim")
         opt <- options(show.error.messages=FALSE) 
         on.exit(options(opt)) 
         stop()
@@ -333,6 +334,7 @@ clustalo <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  # Submit Job
   URL <-  paste(baseURL, '/run', sep="")
   JobID <- postForm(URL, email= email, 
                     sequence= sequence, 

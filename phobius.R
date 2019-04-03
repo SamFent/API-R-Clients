@@ -1,4 +1,4 @@
-# Phobius Client 
+# Phobius R Client 
 
 # Load Required Libraries 
 library(RCurl)
@@ -213,6 +213,7 @@ phobius <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  # Submit Job
   URL <-  paste(baseURL, '/run', sep="")
   JobID <- postForm(URL, email= email, 
                     sequence= sequence, 
