@@ -6,27 +6,27 @@ library(readr)
 library(stringr)
 
 simple_phylogeny  <- function(email= NULL, 
-                      stype= NULL, 
                       sequence= NULL,
                       outfile= NULL,
                       outformat= NULL,
                       paramDetail= NULL,
-                      tree= "phylip",
-                      kimura= "true",
-                      tossgaps= "true",
-                      pim= "true",
+                      tree= NULL,
+                      kimura= NULL,
+                      tossgaps= NULL,
+                      clustering= NULL,
+                      pim= NULL,
                       ...){
   # Get list of parameters
   args <- c(as.list(environment()),list(...))
-  parameterlist <- c("^sequence$", "^email$", "^stype$", "^outformat$", "^outfile$", "^paramDetail$", 
+  parameterlist <- c("^sequence$", "^email$", "^outformat$", "^outfile$", "^paramDetail$", 
                      "^help$", "^resultTypes$", "^params$", "^tree$", "^kimura$", "^tossgaps$", 
-                     "^pim$")
+                     "^clustering$", "^pim$")
   results <- grepl(paste(parameterlist, collapse = "|"), names(args))
   results <- grep("FALSE", results) 
   baseURL <- "https://www.ebi.ac.uk/Tools/services/rest/simple_phylogeny"
   usage <- "EMBL-EBI Simple Phylogeny R Client:
 
-  Generating Phylogenetic Trees with Simple Phylogeny.
+ Generating Phylogenetic Trees with Simple Phylogeny.
   
  [Required (for job submission)]
   email=               E-mail address.
@@ -52,6 +52,7 @@ simple_phylogeny  <- function(email= NULL,
                        in the input have a gap will be excluded, forcing the
                        alignment to use only positions where information can be
                        included from all sequences.
+  clustering=          Clustering Methods.
   pim=                 Output the percentage identity matrix.
 
  [General]
@@ -147,7 +148,7 @@ simple_phylogeny  <- function(email= NULL,
     }
   }
   # If arguments if left blank then print usage
-  if(is.null(stype)==TRUE && is.null(sequence)==TRUE && is.null(email)==TRUE) {
+  if(is.null(sequence)==TRUE && is.null(email)==TRUE) {
     
     cat(usage)
     opt <- options(show.error.messages=FALSE) 
@@ -204,6 +205,7 @@ simple_phylogeny  <- function(email= NULL,
     
   }
   # Check tree input is valid - default is phylip
+  if(!missing(tree)){
   valueCheck(parameter= "tree")
   valueComp <- grepl(tree, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -213,7 +215,9 @@ simple_phylogeny  <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   } 
+  }
   # Check kimura input is valid - default is true
+  if(!missing(kimura)){
   valueCheck(parameter= "kimura")
   valueComp <- grepl(kimura, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -222,8 +226,10 @@ simple_phylogeny  <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
-  }   
+  } 
+  }
   # Check tossgaps input is valid - default is true
+  if(!missing(tossgaps)){
   valueCheck(parameter= "tossgaps")
   valueComp <- grepl(tossgaps, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -233,7 +239,21 @@ simple_phylogeny  <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }   
+  }
+  # check if clustering input is valid
+  if(!missing(clustering)){
+    valueCheck(parameter= "clustering")
+    valueComp <- grepl(clustering, paramdetails, ignore.case= TRUE)
+    valueComp <- grep("TRUE", valueComp)
+    if(length(valueComp)==0){
+      cat("Error: Invalid input for clustering. Check valid inputs using paramDetail= clustering")
+      opt <- options(show.error.messages=FALSE) 
+      on.exit(options(opt)) 
+      stop()  
+    }  
+  }
   # Check pim input is valid - default is true
+  if(!missing(pim)){
   valueCheck(parameter= "pim")
   valueComp <- grepl(pim, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -243,6 +263,7 @@ simple_phylogeny  <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   } 
+  }
   # Submit Job
   URL <-  paste(baseURL, '/run', sep="")
   JobID <- postForm(URL, email= email, 
@@ -250,6 +271,7 @@ simple_phylogeny  <- function(email= NULL,
                     tree= tree,
                     kimura= kimura,
                     tossgaps= tossgaps,
+                    clustering= clustering,
                     pim= pim)
   JobStatus <- "JOB SUBMITTED \n"
   cat(JobStatus)

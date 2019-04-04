@@ -11,7 +11,7 @@ phobius <- function(email= NULL,
             outfile= NULL,
             outformat= NULL,
             paramDetail= NULL,
-            format= "grp",
+            format= NULL,
             ...) {
   # Get list of parameters
   args <- c(as.list(environment()),list(...))
@@ -22,7 +22,7 @@ phobius <- function(email= NULL,
   baseURL <- "https://www.ebi.ac.uk/Tools/services/rest/phobius"
   usage <- "EMBL-EBI PHOBIUS R Client:
   
-  Protein function analysis with Phobius.
+ Protein function analysis with Phobius.
   
  [Required (for job submission)]
   email=               E-mail address.
@@ -204,6 +204,7 @@ phobius <- function(email= NULL,
     stop()  
   }
   # Check format input is valid
+  if(!missing(format)){
   valueCheck(parameter= "format")
   valueComp <- grepl(format, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -212,6 +213,7 @@ phobius <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+    }
   }
   # Submit Job
   URL <-  paste(baseURL, '/run', sep="")

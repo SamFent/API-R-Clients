@@ -11,16 +11,16 @@ clustalo <- function(email= NULL,
                      outfile= NULL,
                      outformat= NULL,
                      paramDetail= NULL,
-                     guidetreeout= 'true',
-                     dismatout= 'true',
-                     dealign= 'true',
-                     mbed= 'true',
-                     mbediteration= 'true',
-                     iterations= 0,
-                     gtiterations= -1,
-                     hmmiterations= -1,
-                     outfmt= 'clustal_num',
-                     order= 'aligned',
+                     guidetreeout= NULL,
+                     dismatout= NULL,
+                     dealign= NULL,
+                     mbed= NULL,
+                     mbediteration= NULL,
+                     iterations= NULL,
+                     gtiterations= NULL,
+                     hmmiterations= NULL,
+                     outfmt= NULL,
+                     order= NULL,
                      ...) {
   
   # Get list of parameters
@@ -34,7 +34,7 @@ clustalo <- function(email= NULL,
   baseURL <- "https://www.ebi.ac.uk/Tools/services/rest/clustalo"  
   usage <- "EMBL-EBI Clustal Omega Perl Client:
 
-  Multiple sequence alignment with Clustal Omega.
+ Multiple sequence alignment with Clustal Omega.
   
  [Required (for job submission)]
   email=               E-mail address.
@@ -235,6 +235,7 @@ clustalo <- function(email= NULL,
     stop()  
   }  
   # Check guidetreeout input is valid - default is true 
+  if(!missing(guidetreeout)){
   valueCheck(parameter= "guidetreeout")
   valueComp <- grepl(guidetreeout, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -243,8 +244,10 @@ clustalo <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+    }
   }  
   # Check dismatout input is valid - default is true 
+  if(!missing(dismatout)){
   valueCheck(parameter= "dismatout")
   valueComp <- grepl(dismatout, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -254,7 +257,9 @@ clustalo <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  }
   # Check dealign input is valid - default is true 
+  if(!missing(dealign)){
   valueCheck(parameter= "dealign")
   valueComp <- grepl(dealign, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -262,9 +267,11 @@ clustalo <- function(email= NULL,
     cat("Error: Invalid input for dealign. Check valid inputs using paramDetail= dealign")
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
-    stop()  
+    stop() 
+  }
   }  
   # Check mbed input is valid - default is true 
+  if(!missing(mbed)){
   valueCheck(parameter= "mbed")
   valueComp <- grepl(mbed, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -273,8 +280,10 @@ clustalo <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+  }
   }   
   # Check mbediteration input is valid - default is true 
+  if(!missing(mbediteration)){
   valueCheck(parameter= "mbediteration")
   valueComp <- grepl(mbediteration, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -283,8 +292,10 @@ clustalo <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+  }
   } 
   # Check iterations input is valid - default is 0
+  if(!missing(iterations)){
   valueCheck(parameter= "iterations")
   valueComp <- grepl(iterations, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -294,7 +305,9 @@ clustalo <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   } 
+  }
   # Check gtiterations input is valid - default is -1
+  if(!missing(gtiterations)){
   valueCheck(parameter= "gtiterations")
   valueComp <- grepl(gtiterations, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -304,7 +317,9 @@ clustalo <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   } 
+  }
   # Check hmmiterations input is valid - default is -1
+  if(!missing(hmmiterations)){
   valueCheck(parameter= "hmmiterations")
   valueComp <- grepl(hmmiterations, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -313,8 +328,10 @@ clustalo <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+  }
   }   
   # Check outfmt input is valid - default is clustal_num
+  if(!missing(outfmt)){
   valueCheck(parameter= "outfmt")
   valueComp <- grepl(outfmt, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -324,7 +341,9 @@ clustalo <- function(email= NULL,
     on.exit(options(opt)) 
     stop()  
   }
+  }
   # Check order input is valid - default is aligned
+  if(!missing(order)){
   valueCheck(parameter= "order")
   valueComp <- grepl(order, paramdetails, ignore.case= TRUE)
   valueComp <- grep("TRUE", valueComp)
@@ -333,6 +352,7 @@ clustalo <- function(email= NULL,
     opt <- options(show.error.messages=FALSE) 
     on.exit(options(opt)) 
     stop()  
+  }
   }
   # Submit Job
   URL <-  paste(baseURL, '/run', sep="")
