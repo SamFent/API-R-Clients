@@ -43,7 +43,7 @@ ncbiblast <- function(email= NULL,
   baseURL <- "https://www.ebi.ac.uk/Tools/services/rest/ncbiblast"
   usage <- "EMBL-EBI NCBI Blast R Client:
     
-  Sequence similarity search with NCBI Blast.
+ Sequence similarity search with NCBI Blast.
   
  [Required (for job submission)]
   email=                E-mail address.
