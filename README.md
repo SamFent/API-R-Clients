@@ -1,6 +1,6 @@
 
 # API R Clients
-These clients are available for public use to access to bioinformatics tools available at the EBI. For examples of how to use these tools, please see the API Client Call.R script 
+These clients are available for public use to access to bioinformatics tools available at the EBI. For examples of how to use these tools, please see the API Client Calls.R script 
 
 ## Required Libraries to Run Clients
 If you are using these clients for the first time ensure you run the following commands to install the necessary libraries: 
